@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tlacua New — Noticias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #eef2f6;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --text: #0f172a;
+      --gray-1: #e6ebf0;
+      --gray-2: #d0d7de;
+      --accent: linear-gradient(135deg,#9097a3,#6b7280);
+      --accent-solid: #606770;
+      --accent-2: #8ea6b8;
+      --accent-3: #cdb49b;
+      --success: #16a34a;
+      --danger: #ef4444;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#f6f8fb);color:var(--text);line-height:1.45 -webkit-font-smoothing;antialiased}
+    a{color:inherit}
+
+    /* Header */
+    .topbar{
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));
+      padding:12px 18px; display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid rgba(15,23,42,0.06);
+      backdrop-filter: blur(6px);
+    }
+    .brand{display:flex;align-items:center;gap:14px}
+    #siteLogo{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--gray-2);box-shadow:0 6px 20px rgba(12,20,30,0.06)}
+    .logo{font-weight:800;color:var(--accent-solid);font-size:20px;line-height:1}
+    .tagline{font-size:12px;color:var(--muted)}
+    .nav{display:flex;gap:14px;align-items:center}
+    .nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:8px;border-radius:8px}
+    .nav a:hover{background:var(--gray-1);color:var(--text)}
+    .search{display:flex;align-items:center;gap:8px}
+    .search input{padding:8px 10px;border-radius:10px;border:1px solid var(--gray-2);background:white;min-width:220px;outline:none}
+    .search button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+    .hamburger{display:none;background:transparent;border:0;font-size:22px}
+
+    /* Admin toolbar */
+    .admin-bar{max-width:1150px;margin:12px auto;padding:0 16px;display:flex;gap:8px;justify-content:flex-end}
+    .admin-bar button{
+      padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);
+      background:linear-gradient(180deg, #ffffff, #f6f6f8);font-weight:700;cursor:pointer;
+      box-shadow: 0 6px 18px rgba(12,20,30,0.04);
+    }
+    .admin-bar .primary{background:var(--accent);color:white;border:0}
+    .admin-bar .danger{background:var(--danger);color:white;border:0}
+
+    /* Layout */
+    .container{max-width:1150px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:1fr 340px;gap:24px}
+    @media (max-width:1000px){.container{grid-template-columns:1fr;padding:0 12px}.nav{display:none}.hamburger{display:block}}
+
+    /* Hero */
+    .hero{border-radius:12px;overflow:hidden;display:flex;gap:18px;padding:18px;align-items:center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(250,250,250,0.6)); box-shadow:0 8px 30px rgba(12,20,30,0.04)}
+    .hero .image{flex:0 0 48%;height:220px;border-radius:10px;background-size:cover;background-position:center;box-shadow:inset 0 -30px 60px rgba(0,0,0,0.06)}
+    .hero .content{flex:1}
+    .kicker{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;background:var(--gray-2);color:var(--text);font-weight:800}
+    .hero h1{margin:10px 0 12px;font-size:26px}
+    .hero p{color:var(--muted);margin:0 0 12px}
+
+    /* Grid of cards */
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:10px}
+    @media (max-width:800px){.grid{grid-template-columns:1fr}}
+
+    .card{
+      background:linear-gradient(180deg,var(--card),#fbfdff);
+      border-radius:12px;overflow:hidden;display:flex;gap:14px;align-items:stretch;padding:12px;
+      box-shadow: 0 6px 18px rgba(12,20,30,0.04);
+      transition: transform .18s ease, box-shadow .18s ease;
+      border:1px solid rgba(12,20,30,0.03);
+    }
+    .card:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(12,20,30,0.08)}
+    .thumb{width:140px;height:100px;background-size:cover;background-position:center;border-radius:8px;flex:0 0 140px}
+    .meta{padding-right:6px;flex:1}
+    .meta h3{margin:0;font-size:16px}
+    .meta p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .meta .meta-line{margin-top:10px;font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+    /* actions */
+    .actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+    .btn-small{display:inline-block;padding:7px 10px;border-radius:8px;background:#f1f5f9;color:var(--text);text-decoration:none;font-weight:700;font-size:13px;border:1px solid rgba(15,23,42,0.04);cursor:pointer}
+    .btn-small:hover{transform:translateY(-2px)}
+    .btn-danger{background:var(--danger);color:white;border:0}
+    .btn-download{background:linear-gradient(90deg,#e2e8f0,#cbd5e1);}
+
+    /* badges (categories) */
+    .badge{display:inline-block;padding:6px 8px;border-radius:999px;font-size:12px;font-weight:800;color:white}
+    .cat-local{background:#5b728a}
+    .cat-cultura{background:#8ea6b8}
+    .cat-deportes{background:#6bb07f}
+    .cat-opinion{background:#d2a679}
+    .cat-economia{background:#9a86c0}
+
+    /* sidebar */
+    aside .card-panel{border-radius:12px;padding:14px;background:linear-gradient(180deg,#ffffff,#fbfdff);box-shadow:0 8px 18px rgba(12,20,30,0.04);border:1px solid rgba(12,20,30,0.03)}
+    .latest li{list-style:none;padding:10px 0;border-bottom:1px dashed #eee}
+    .subscribe input{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid var(--gray-2)}
+    .socials a{margin-right:8px;color:var(--muted);text-decoration:none;font-weight:700}
+
+    /* modal */
+    .modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(5,12,20,0.45);padding:16px;z-index:60}
+    .modal .box{background:var(--card);max-width:920px;width:100%;max-height:92vh;overflow:auto;border-radius:12px;padding:18px;box-shadow:0 30px 60px rgba(10,20,30,0.4)}
+    .modal img{max-width:100%;border-radius:8px;margin:12px 0}
+
+    /* form */
+    .form-row{display:flex;gap:8px;margin-bottom:10px}
+    .form-row input,.form-row textarea{flex:1;padding:10px;border-radius:8px;border:1px solid var(--gray-2);outline:none}
+    .form-row textarea{resize:vertical}
+    .muted{color:var(--muted);font-size:13px}
+
+    footer{max-width:1150px;margin:26px auto 60px;padding:18px;background:transparent;color:var(--muted);font-size:13px}
+    small.note{display:block;color:var(--muted);font-size:12px;margin-top:8px}
+
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <img id="siteLogo" src="logo.jpg" alt="Logo Tlacua New" />
+      <div>
+        <div class="logo">Tlacua New <span style="font-weight:400;color:var(--muted);font-size:12px">— Noticias</span></div>
+        <div class="tagline">Local • Nacional • Cultura • Deportes</div>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="principal">
+      <a href="#">Inicio</a>
+      <a href="#">Local</a>
+      <a href="#">Nacional</a>
+      <a href="#">Deportes</a>
+      <a href="#">Cultura</a>
+      <a href="#">Opinión</a>
+    </nav>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="search">
+        <input id="q" placeholder="Buscar noticias..." />
+        <button id="searchBtn">Buscar</button>
+      </div>
+      <button class="hamburger" id="menuBtn">☰</button>
+    </div>
+  </header>
+
+  <!-- Admin toolbar -->
+  <div class="admin-bar" role="region" aria-label="administracion">
+    <button id="addArticleBtn" class="primary">✚ Agregar noticia</button>
+    <button id="clearBtn" class="danger">🧹 Limpiar todo</button>
+  </div>
+
+  <main class="container">
+    <section>
+      <section class="hero" aria-labelledby="destacado">
+        <div class="image" id="heroImg" style="background-image:url('https://picsum.photos/id/1018/900/600')"></div>
+        <div class="content">
+          <div class="kicker">Destacado</div>
+          <h1 id="destacado">Explosión de actividades culturales este fin de semana</h1>
+          <p class="muted">Conciertos, ferias y presentaciones teatrales llenarán las principales plazas. Entérate de horarios y espacios.</p>
+          <a class="btn" id="readHero" style="background:linear-gradient(90deg,#8ea6b8,#6b7280);color:white;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800">Leer más</a>
+          <small class="muted" style="display:block;margin-top:8px">Comparte la nota con el botón compartir dentro de la noticia.</small>
+        </div>
+      </section>
+
+      <div class="grid" id="newsGrid"></div>
+    </section>
+
+    <aside>
+      <div class="card-panel">
+        <strong>Últimas noticias</strong>
+        <ul class="latest" id="latestList"></ul>
+      </div>
+
+      <div class="card-panel">
+        <strong>Clima (demo)</strong>
+        <div style="margin-top:8px">Parral, CHIH — 26°C <span class="muted">Soleado</span></div>
+        <small class="muted">Actualizado: 26 ago 2025</small>
+      </div>
+
+      <div class="card-panel subscribe">
+        <strong>Suscríbete</strong>
+        <p class="muted">Recibe un boletín diario con las noticias más importantes.</p>
+        <input id="email" placeholder="tu@correo.com" />
+        <a class="btn" id="subscribeBtn">Suscribir</a>
+        <small class="note">No se enviarán correos reales — demo local.</small>
+      </div>
+
+      <div class="card-panel">
+        <strong>Síguenos</strong>
+        <p class="socials" style="margin-top:8px">
+          <a href="#" title="Facebook">Facebook</a> · <a href="#" title="X">X</a> · <a href="#" title="Instagram">Instagram</a>
+        </p>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container" style="grid-template-columns:1fr;gap:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>© Tlacua New — Sitio de ejemplo creado para fines educativos.</div>
+        <div class="muted">Contacto: demo@tlacuanew.mx</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Article modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="box">
+      <button id="closeModal" style="float:right;background:transparent;border:0;font-size:18px">✕</button>
+      <h2 id="modalTitle">Título</h2>
+      <p class="muted" id="modalMeta">Autor · Fecha</p>
+      <img id="modalImg" src="" alt="">
+      <article id="modalBody"></article>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="modalShare" class="btn-small">Compartir</button>
+        <button id="modalDownload" class="btn-small btn-download">Descargar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form modal -->
+  <div id="formModal" class="modal" role="dialog" aria-modal="true">
+    <div class="box">
+      <button id="closeForm" style="float:right;background:transparent;border:0;font-size:18px">✕</button>
+      <h2 id="formTitle">Agregar noticia</h2>
+      <form id="articleForm" onsubmit="return false;">
+        <div class="form-row">
+          <input id="fTitle" placeholder="Título" required />
+        </div>
+        <div class="form-row">
+          <input id="fAuthor" placeholder="Autor" />
+          <input id="fDate" placeholder="Fecha (YYYY-MM-DD)" />
+        </div>
+        <div class="form-row">
+          <input id="fImageURL" placeholder="URL imagen (opcional)" />
+          <input id="fImageFile" type="file" accept="image/*" />
+        </div>
+        <div class="form-row">
+          <input id="fCategory" placeholder="Categoría (ej. Local, Cultura)" />
+          <input id="fExcerpt" placeholder="Resumen / excerpt" />
+        </div>
+        <div class="form-row">
+          <textarea id="fContent" placeholder="Contenido (cuerpo)" rows="6"></textarea>
+        </div>
+        <input type="hidden" id="fId" />
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button type="button" id="saveArticleBtn" class="primary">Guardar</button>
+          <button type="button" id="cancelFormBtn" style="padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;background:white;font-weight:700">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+/* Tlacua New — client-side news manager (localStorage) */
+/* Key and defaults */
+const STORAGE_KEY = 'tlacuanew_articles_v1';
+const defaultArticles = [
+  {id:1,title:'Conciertos y ferias: la agenda cultural',excerpt:'Una larga lista de eventos gratuitos y de paga anima a la ciudad.',img:'https://picsum.photos/id/1015/600/400',author:'Redacción',date:'2025-08-24',content:'La ciudad vivirá un fin de semana lleno de música, teatro y actividades familiares. Se recomienda llegar temprano a las plazas principales para asegurar lugar. Más detalles sobre cada evento y los invitados internacionales.',category:'Cultura'},
+  {id:2,title:'Minería local impulsa la economía regional',excerpt:'Nuevas inversiones y empleo en el sector minero.',img:'https://picsum.photos/id/1003/600/400',author:'Ana López',date:'2025-08-23',content:'Las autoridades han reportado un incremento en la actividad y proyectos que podrían generar empleos a corto plazo. Expertos piden regulación y supervisión ambiental.',category:'Economía'},
+  {id:3,title:'Equipo local gana torneo estatal',excerpt:'Triunfo histórico para el club de la ciudad.',img:'https://picsum.photos/id/1027/600/400',author:'Deportes',date:'2025-08-22',content:'En una final emocionante, el equipo logró imponerse en tanda de penales. Crónica del partido y declaraciones del entrenador.',category:'Deportes'},
+  {id:4,title:'Iniciativa de seguridad vecinal',excerpt:'Vecinos organizan rondas nocturnas y patrullaje ciudadano.',img:'https://picsum.photos/id/1035/600/400',author:'Local',date:'2025-08-20',content:'Con el objetivo de mejorar la percepción de seguridad, los comités vecinales han organizado reuniones y simulacros. Autoridades recomiendan canalizar la colaboración.',category:'Local'},
+  {id:5,title:'Mercado artesanal crece en visitantes',excerpt:'Turismo local impulsa ventas en el centro.',img:'https://picsum.photos/id/1041/600/400',author:'Cultura',date:'2025-08-19',content:'Artesanos reportan mayor afluencia los fines de semana, lo que mejora ingresos y conservación de técnicas tradicionales.',category:'Cultura'}
+];
+
+const grid = document.getElementById('newsGrid');
+const latest = document.getElementById('latestList');
+const modal = document.getElementById('modal');
+const formModal = document.getElementById('formModal');
+
+function loadArticles(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultArticles.slice();
+    return JSON.parse(raw);
+  } catch(e){
+    console.error('Error leyendo storage', e);
+    return defaultArticles.slice();
+  }
+}
+function saveArticles(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+
+let articles = loadArticles();
+
+/* Category -> badge class mapping */
+function categoryBadgeClass(cat){
+  if(!cat) return 'badge cat-local';
+  const c = cat.toLowerCase();
+  if(c.includes('local')) return 'badge cat-local';
+  if(c.includes('cultura')) return 'badge cat-cultura';
+  if(c.includes('deport')) return 'badge cat-deportes';
+  if(c.includes('opin')) return 'badge cat-opinion';
+  if(c.includes('econ')) return 'badge cat-economia';
+  return 'badge cat-local';
+}
+
+/* Render */
+function renderCards(list){
+  grid.innerHTML = '';
+  list.forEach(a=>{
+    const div = document.createElement('div'); div.className = 'card';
+    const imgUrl = a.img || ('https://picsum.photos/seed/'+a.id+'/600/400');
+    const categoryClass = categoryBadgeClass(a.category);
+    div.innerHTML = `
+      <div class="thumb" style="background-image:url('${imgUrl}')"></div>
+      <div class="meta">
+        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+          <h3>${escapeHtml(a.title)}</h3>
+          <span class="${categoryClass}">${escapeHtml(a.category||'Local')}</span>
+        </div>
+        <p class="muted">${escapeHtml(a.excerpt||'')}</p>
+        <div class="meta-line">
+          <span class="muted">${escapeHtml(a.author||'')}</span>
+          <span class="muted">·</span>
+          <span class="muted">${escapeHtml(a.date||'')}</span>
+        </div>
+        <div class="actions">
+          <a href="#" data-id="${a.id}" class="btn-small read">Leer</a>
+          <a href="#" data-id="${a.id}" class="btn-small edit">Editar</a>
+          <a href="#" data-id="${a.id}" class="btn-small share">Compartir</a>
+          <a href="#" data-id="${a.id}" class="btn-small btn-download">Descargar</a>
+          <a href="#" data-id="${a.id}" class="btn-small btn-danger delete">Eliminar</a>
+        </div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function renderLatest(list){
+  latest.innerHTML = '';
+  list.slice(0,6).forEach(a=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${escapeHtml(a.title)}</strong><br><small class="muted">${escapeHtml(a.date||'')}</small>`;
+    li.addEventListener('click', ()=> openArticle(a.id));
+    latest.appendChild(li);
+  });
+}
+
+function openArticle(id, pushHash=true){
+  const art = articles.find(x=>x.id===id);
+  if(!art) return;
+  document.getElementById('modalTitle').innerText = art.title;
+  document.getElementById('modalMeta').innerText = (art.author||'') + (art.date? ' · ' + art.date : '');
+  document.getElementById('modalImg').src = art.img || ('https://picsum.photos/seed/'+art.id+'/900/400');
+  document.getElementById('modalBody').innerHTML = '<p>'+escapeHtml(art.content||'')+'</p>';
+  modal.style.display = 'flex';
+
+  // attach share & download to modal buttons
+  document.getElementById('modalShare').onclick = ()=> shareArticle(art);
+  document.getElementById('modalDownload').onclick = ()=> downloadArticleStandalone(art);
+
+  if(pushHash){
+    try{ history.replaceState(null,'','#article-'+id); }catch(e){}
+  }
+}
+
+/* Escape HTML to avoid injection */
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, function(s){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s]; });
+}
+
+/* Form open/edit */
+document.getElementById('addArticleBtn').addEventListener('click', ()=> openForm());
+function openForm(article){
+  document.getElementById('formTitle').innerText = article ? 'Editar noticia' : 'Agregar noticia';
+  document.getElementById('fId').value = article ? article.id : '';
+  document.getElementById('fTitle').value = article ? article.title : '';
+  document.getElementById('fAuthor').value = article ? article.author : '';
+  document.getElementById('fDate').value = article ? article.date : '';
+  document.getElementById('fImageURL').value = article ? (article.img && article.img.startsWith('data:') ? '' : article.img) : '';
+  document.getElementById('fCategory').value = article ? article.category || '' : '';
+  document.getElementById('fExcerpt').value = article ? article.excerpt : '';
+  document.getElementById('fContent').value = article ? article.content : '';
+  document.getElementById('fImageFile').value = '';
+  formModal.style.display = 'flex';
+}
+
+/* Save */
+document.getElementById('saveArticleBtn').addEventListener('click', async ()=>{
+  const idVal = document.getElementById('fId').value;
+  const title = document.getElementById('fTitle').value.trim();
+  if(!title){ alert('El título es obligatorio'); return; }
+  const author = document.getElementById('fAuthor').value.trim();
+  const date = document.getElementById('fDate').value.trim();
+  const excerpt = document.getElementById('fExcerpt').value.trim();
+  const content = document.getElementById('fContent').value.trim();
+  const imageURL = document.getElementById('fImageURL').value.trim();
+  const imageFile = document.getElementById('fImageFile').files[0];
+  const category = document.getElementById('fCategory').value.trim();
+
+  let imgSrc = '';
+  if(imageFile){
+    imgSrc = await readFileAsDataURL(imageFile);
+  } else if(imageURL){
+    imgSrc = imageURL;
+  }
+
+  if(idVal){
+    const id = Number(idVal);
+    const idx = articles.findIndex(a=>a.id===id);
+    if(idx===-1) return alert('Artículo no encontrado');
+    articles[idx] = {...articles[idx], title, author, date, excerpt, content, img: imgSrc || articles[idx].img, category};
+  } else {
+    const newId = articles.reduce((m,a)=>Math.max(m,a.id),0)+1;
+    const art = {id:newId,title,author,date,excerpt,content,img:imgSrc,category};
+    articles.unshift(art);
+  }
+
+  saveArticles(articles);
+  renderAll();
+  formModal.style.display = 'none';
+});
+
+/* FileReader helper */
+function readFileAsDataURL(file){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader();
+    fr.onload = ()=> res(fr.result);
+    fr.onerror = rej;
+    fr.readAsDataURL(file);
+  });
+}
+
+/* Delegated clicks: read/edit/delete/share/download */
+document.addEventListener('click',(e)=>{
+  if(e.target.matches('.read')){ e.preventDefault(); openArticle(Number(e.target.dataset.id)); }
+  if(e.target.matches('.edit')){ e.preventDefault(); const art = articles.find(a=>a.id===Number(e.target.dataset.id)); if(art) openForm(art); }
+  if(e.target.matches('.delete')){ e.preventDefault(); if(confirm('Eliminar esta noticia?')){ const id = Number(e.target.dataset.id); articles = articles.filter(a=>a.id!==id); saveArticles(articles); renderAll(); } }
+  if(e.target.matches('.share')){ e.preventDefault(); const id = Number(e.target.dataset.id); const art = articles.find(a=>a.id===id); if(art) shareArticle(art); }
+  if(e.target.matches('.btn-download')){ e.preventDefault(); const id = Number(e.target.dataset.id); const art = articles.find(a=>a.id===id); if(art) downloadArticleStandalone(art); }
+});
+
+/* Share: Web Share API -> clipboard -> fallback: download standalone HTML */
+function shareArticle(art){
+  const baseUrl = (location.href.split('#')[0] || location.href);
+  const shareUrl = baseUrl + '#article-' + art.id;
+  const msgText = (art.title || '') + '\n\n' + (art.excerpt || '') + '\n\n' + 'Enlace: ' + shareUrl;
+
+  if(navigator.share){
+    navigator.share({title: art.title, text: art.excerpt || art.title, url: shareUrl})
+      .catch(()=> alert('Compartir cancelado o no disponible'));
+    return;
+  }
+
+  // try clipboard
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(msgText).then(()=>{
+      alert('Enlace y resumen copiados al portapapeles. También se descargó un archivo HTML de la noticia para que puedas compartirlo.');
+      downloadArticleStandalone(art);
+    }).catch(()=>{
+      // fallback to download + prompt
+      downloadArticleStandalone(art);
+      prompt('Copia manualmente este texto para compartir:', msgText);
+    });
+    return;
+  }
+
+  // last fallback
+  downloadArticleStandalone(art);
+  prompt('Copia este texto para compartir la noticia:', msgText);
+}
+
+/* Create a standalone HTML file for sharing/downloading */
+function downloadArticleStandalone(art){
+  const safe = s => escapeHtml(s||'');
+  const html = `<!doctype html>
+  <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safe(art.title)}</title>
+  <style>body{font-family:Inter,Arial,Helvetica,sans-serif;padding:18px;background:#f3f4f6;color:#0f172a}img{max-width:100%;height:auto;border-radius:8px}h1{font-size:22px}small{color:#6b7280}</style>
+  </head><body>
+  <h1>${safe(art.title)}</h1>
+  <small>${safe(art.author||'')} ${art.date? '· '+safe(art.date):''}</small>
+  ${art.img? '<div style="margin:12px 0"><img src="'+safe(art.img)+'" alt=""></div>':''}
+  <article><p>${safe(art.content)}</p></article>
+  </body></html>`;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `tlacuanew-article-${art.id}.html`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* Search */
+document.getElementById('searchBtn').addEventListener('click', ()=>{
+  const q = (document.getElementById('q').value || '').toLowerCase().trim();
+  if(!q){ renderAll(); return; }
+  const filtered = articles.filter(a => (a.title + ' ' + (a.excerpt||'') + ' ' + (a.content||'')).toLowerCase().includes(q));
+  renderCards(filtered);
+  renderLatest(filtered);
+});
+
+/* Close modals */
+document.getElementById('closeModal').addEventListener('click', ()=>{ modal.style.display='none'; history.replaceState(null,'',location.pathname); });
+document.getElementById('closeForm').addEventListener('click', ()=>{ formModal.style.display='none'; });
+document.getElementById('cancelFormBtn').addEventListener('click', ()=>{ formModal.style.display='none'; });
+
+/* Clear */
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('Eliminar todas las noticias guardadas y restaurar valores por defecto?')){
+    localStorage.removeItem(STORAGE_KEY);
+    articles = loadArticles();
+    renderAll();
+  }
+});
+
+/* Utility: initial render */
+function renderAll(){ renderCards(articles); renderLatest(articles); }
+renderAll();
+
+/* Open from hash like index.html#article-3 */
+(function openFromHash(){
+  const h = location.hash || '';
+  if(h.startsWith('#article-')){
+    const id = Number(h.replace('#article-',''));
+    if(id) setTimeout(()=> openArticle(id, false), 250);
+  }
+})();
+
+/* mobile menu toggle */
+document.getElementById('menuBtn').addEventListener('click', ()=>{
+  const nav = document.querySelector('.nav');
+  if(nav.style.display === 'flex') nav.style.display = 'none';
+  else { nav.style.display = 'flex'; nav.style.flexDirection = 'column'; nav.style.position='absolute'; nav.style.right='18px'; nav.style.top='56px'; nav.style.background='white'; nav.style.padding='10px'; nav.style.boxShadow='0 10px 30px rgba(10,15,28,0.08)'; }
+});
+
+/* Escape on Esc */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){ modal.style.display = 'none'; formModal.style.display = 'none'; history.replaceState(null,'',location.pathname); }
+});
+
+/* Subscribe demo */
+document.getElementById('subscribeBtn').addEventListener('click', ()=>{
+  const email = (document.getElementById('email').value||'').trim();
+  if(!email || !email.includes('@')) return alert('Introduce un correo válido (demo).');
+  alert('Gracias — ' + email + ' se ha suscrito (demo).');
+  document.getElementById('email').value = '';
+});
+
+</script>
+</body>
+</html>
